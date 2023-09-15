@@ -1,0 +1,4 @@
+name = "Memorandum"
+uuid = "efd462c1-e06d-48d1-a25d-b7b5842fbc0e"
+authors = ["Erik Edin <erikedin@users.noreply.github.com>"]
+version = "0.1.0"
