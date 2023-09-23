@@ -12,17 +12,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-Feature: Starting applications
+using Behavior
+using Memorandum
 
-  Scenario: Start an application
-    Given a memorandum
-      And a registered application Foo
-     When the application Foo is started
-     Then a message can be sent to Foo
-      And a message can be received from Foo
+struct FooApp
+end
 
-  Scenario: Relay a message from one application to another
-    Given a memorandum
-      And two running applications Foo and Bar
-     When the application Foo sends a message for Bar
-     Then the application Bar receives that message
+struct FooMessage
+    n::Int
+end
+
+@given("a registered application Foo") do context
+    memo = context[:memo]
+    registerapplication!(memo, FooApp)
+end
+
+@when("the application Foo is started") do context
+    memo = context[:memo]
+    startapplication!(memo, FooApp)
+end
+
+@then("a message can be sent to Foo") do context
+    memo = context[:memo]
+    message = FooMessage(1)
+    send!(memo, FooApp, message)
+end
+
+@then("a message can be received from Foo") do context
+    @fail "Implement me"
+end

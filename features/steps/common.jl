@@ -13,7 +13,9 @@
 # limitations under the License.
 
 using Behavior
+using Memorandum
 
 @given("a memorandum") do context
-    @fail "Implement me"
+    memo = MemorandumService()
+    context[:memo] = memo
 end
