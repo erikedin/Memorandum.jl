@@ -14,15 +14,9 @@
 
 Feature: Starting applications
 
-  Scenario: Start an application
-    Given a memorandum
-      And a registered application Foo
-     When the application Foo is started
-     Then a message can be sent to Foo
-      And a message can be received from Foo
-
   Scenario: Relay a message from one application to another
     Given a memorandum
       And two running applications Foo and Bar
-     When the application Foo sends a message for Bar
+      And the application Bar subscribes to the Foo message
+     When the application Foo sends a message
      Then the application Bar receives that message

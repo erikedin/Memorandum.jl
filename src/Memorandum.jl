@@ -14,14 +14,23 @@
 
 module Memorandum
 
-export MemorandumService
-export registerapplication!, startapplication!, send!
+export MemorandumService, MemoProxy
+export startapplication!
+export MessageIdentifier
+export send!, receive!, subscribe!
 
 struct MemorandumService
 end
 
-registerapplication!(::MemorandumService, ::Any) = nothing
+struct MessageIdentifier
+    messageid::String
+end
+
+const MemoProxy = MemorandumService
+
 startapplication!(::MemorandumService, ::Any) = nothing
 send!(::MemorandumService, ::Any, ::Any) = nothing
+receive!(::MemorandumService) = nothing
+subscribe!(::MemorandumService, messageid::MessageIdentifier) = nothing
 
 end # module Memorandum
