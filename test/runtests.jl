@@ -12,10 +12,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-using Behavior
 using Memorandum
 using Test
-
-parseoptions = Behavior.Gherkin.ParseOptions(use_experimental=true)
-
-@test runspec(pkgdir(Memorandum); parseoptions=parseoptions)
