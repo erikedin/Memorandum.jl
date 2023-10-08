@@ -14,3 +14,5 @@
 
 using Memorandum
 using Test
+
+include("memorandum_test.jl")

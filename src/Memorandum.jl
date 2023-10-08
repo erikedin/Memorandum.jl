@@ -14,23 +14,27 @@
 
 module Memorandum
 
-export MemorandumService, MemoProxy
-export startapplication!
+export MemorandumService
 export MessageIdentifier
-export send!, receive!, subscribe!
+export registerapplication!
+export publish!, subscribe!
+
+abstract type Application end
 
 struct MemorandumService
+    apps::Vector{Application}
+
+    MemorandumService() = new(Application[])
 end
 
 struct MessageIdentifier
     messageid::String
 end
 
-const MemoProxy = MemorandumService
-
-startapplication!(::MemorandumService, ::Any) = nothing
-send!(::MemorandumService, ::Any, ::Any) = nothing
-receive!(::MemorandumService) = nothing
-subscribe!(::MemorandumService, messageid::MessageIdentifier) = nothing
+registerapplication!(memo::MemorandumService, app::Application) = push!(memo.apps, app)
+subscribe!(::MemorandumService, ::Application, ::MessageIdentifier) = nothing
+function publish!(memo::MemorandumService, message::Any)
+    push!(memo.apps[1].messages, message)
+end
 
 end # module Memorandum
