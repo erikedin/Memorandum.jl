@@ -17,24 +17,33 @@ module Memorandum
 export MemorandumService
 export MessageIdentifier
 export registerapplication!
-export publish!, subscribe!
-
-abstract type Application end
-
-struct MemorandumService
-    apps::Vector{Application}
-
-    MemorandumService() = new(Application[])
-end
+export publish!, subscribe!, send!
+export messageidentifier
 
 struct MessageIdentifier
     messageid::String
 end
 
+messageidentifier(::Any) = error("Implement messageidentifier(::MessageType)")
+
+abstract type Application end
+
+send!(::Application, ::Any) = error("Implement send!(::Application, ::Any)")
+
+mutable struct MemorandumService
+    apps::Vector{Application}
+    subscriptions::Set{MessageIdentifier}
+
+    MemorandumService() = new(Application[], Set{MessageIdentifier}())
+end
+
 registerapplication!(memo::MemorandumService, app::Application) = push!(memo.apps, app)
-subscribe!(::MemorandumService, ::Application, ::MessageIdentifier) = nothing
+subscribe!(memo::MemorandumService, ::Application, messageid::MessageIdentifier) = push!(memo.subscriptions, messageid)
+
 function publish!(memo::MemorandumService, message::Any)
-    push!(memo.apps[1].messages, message)
+    if messageidentifier(message) in memo.subscriptions
+        send!(memo.apps[1], message)
+    end
 end
 
 end # module Memorandum

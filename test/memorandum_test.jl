@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import Memorandum: send!, messageidentifier
+
 struct FooApplication <: Memorandum.Application
     messages::Vector{Any}
 
@@ -22,7 +24,26 @@ function hasmessage(app::FooApplication, message) :: Bool
     message in app.messages
 end
 
+send!(app::FooApplication, message::Any) = push!(app.messages, message)
+
+struct BarApplication <: Memorandum.Application
+    received::Vector{Any}
+
+    BarApplication() = new([])
+end
+
+
+send!(app::BarApplication, message::Any) = push!(app.received, message)
+
+function hasmessage(app::BarApplication, message) :: Bool
+    message in app.received
+end
+
 struct MessageA end
+struct MessageB end
+
+messageidentifier(::MessageA) = MessageIdentifier("MessageA")
+messageidentifier(::MessageB) = MessageIdentifier("MessageB")
 
 @testset "Memorandum" begin
 
@@ -38,6 +59,49 @@ struct MessageA end
 
     # Assert
     @test hasmessage(fooapp, MessageA())
+end
+
+@testset "Subscription; Application Bar subscribes to message A; Bar receives a message A" begin
+    # This tests that the internal detail of how messages are sent to an application is abstracted.
+    # The `BarApplication` struct has different fields that `FooApplication`.
+    # Arrange
+    memo = MemorandumService()
+    barapp = BarApplication()
+    registerapplication!(memo, barapp)
+
+    # Act
+    subscribe!(memo, barapp, MessageIdentifier("MessageA"))
+    publish!(memo, MessageA())
+
+    # Assert
+    @test hasmessage(barapp, MessageA())
+end
+
+@testset "Subscription; Application Foo does not subscribe to message A; Foo does not receive a message A" begin
+    # Arrange
+    memo = MemorandumService()
+    fooapp = FooApplication()
+    registerapplication!(memo, fooapp)
+
+    # Act
+    publish!(memo, MessageA())
+
+    # Assert
+    @test !hasmessage(fooapp, MessageA())
+end
+
+@testset "Subscription; Application Foo subscribes to message A; Foo does not receive a message B" begin
+    # Arrange
+    memo = MemorandumService()
+    fooapp = FooApplication()
+    registerapplication!(memo, fooapp)
+
+    # Act
+    subscribe!(memo, fooapp, MessageIdentifier("MessageA"))
+    publish!(memo, MessageB())
+
+    # Assert
+    @test !hasmessage(fooapp, MessageB())
 end
 
 end
