@@ -104,4 +104,51 @@ end
     @test !hasmessage(fooapp, MessageB())
 end
 
+@testset "Multiple subscriptions; Application Foo subscribes to message A; Foo receives message A" begin # Arrange
+    memo = MemorandumService()
+    fooapp = FooApplication()
+    barapp = BarApplication()
+    registerapplication!(memo, fooapp)
+    registerapplication!(memo, barapp)
+
+    # Act
+    subscribe!(memo, fooapp, MessageIdentifier("MessageA"))
+    publish!(memo, MessageA())
+
+    # Assert
+    @test hasmessage(fooapp, MessageA())
+end
+
+@testset "Multiple subscriptions; Application Bar subscribes to message A; Bar receives message A" begin # Arrange
+    memo = MemorandumService()
+    fooapp = FooApplication()
+    barapp = BarApplication()
+    registerapplication!(memo, fooapp)
+    registerapplication!(memo, barapp)
+
+    # Act
+    subscribe!(memo, barapp, MessageIdentifier("MessageA"))
+    publish!(memo, MessageA())
+
+    # Assert
+    @test hasmessage(barapp, MessageA())
+end
+
+@testset "Multiple subscriptions; Application Foo and Bar subscribe to message A; Foo and Bar receives message A" begin # Arrange
+    memo = MemorandumService()
+    fooapp = FooApplication()
+    barapp = BarApplication()
+    registerapplication!(memo, fooapp)
+    registerapplication!(memo, barapp)
+
+    # Act
+    subscribe!(memo, fooapp, MessageIdentifier("MessageA"))
+    subscribe!(memo, barapp, MessageIdentifier("MessageA"))
+    publish!(memo, MessageA())
+
+    # Assert
+    @test hasmessage(fooapp, MessageA())
+    @test hasmessage(barapp, MessageA())
+end
+
 end

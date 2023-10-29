@@ -32,17 +32,22 @@ send!(::Application, ::Any) = error("Implement send!(::Application, ::Any)")
 
 mutable struct MemorandumService
     apps::Vector{Application}
-    subscriptions::Set{MessageIdentifier}
+    subscriptions::Dict{MessageIdentifier, Vector{Application}}
 
-    MemorandumService() = new(Application[], Set{MessageIdentifier}())
+    MemorandumService() = new(Application[], Dict{MessageIdentifier, Vector{Application}}())
 end
 
 registerapplication!(memo::MemorandumService, app::Application) = push!(memo.apps, app)
-subscribe!(memo::MemorandumService, ::Application, messageid::MessageIdentifier) = push!(memo.subscriptions, messageid)
+
+function subscribe!(memo::MemorandumService, app::Application, messageid::MessageIdentifier)
+    apps = get!(memo.subscriptions, messageid, Application[])
+    push!(apps, app)
+end
 
 function publish!(memo::MemorandumService, message::Any)
-    if messageidentifier(message) in memo.subscriptions
-        send!(memo.apps[1], message)
+    messageid = messageidentifier(message)
+    for app in get(memo.subscriptions, messageid, Application[])
+        send!(app, message)
     end
 end
 
